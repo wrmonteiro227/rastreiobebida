@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Rastreio Realtime</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .info-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info-box">
+        <strong>Status:</strong> <span id="status">Aguardando sinal...</span><br>
+        <strong>Precisão:</strong> <span id="precisao">-</span>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // 1. Configuração do Supabase
+        const SUPABASE_URL = 'https://zqvfnykxwlcozvawqgrn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmZueWt4d2xjb3p2YXdxZ3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NDkzNDQsImV4cCI6MjA4NTMyNTM0NH0.CevpF9vP4748mb2vFNsOp5Kq6u7Nfp_100bJcW7ogUQ';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. Inicializa o Mapa (centralizado no Brasil por padrão)
+        const map = L.map('map').setView([-15.7801, -47.9292], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker;
+
+        // 3. Função para atualizar o marcador no mapa
+        function atualizarMapa(lat, lng, acc) {
+            document.getElementById('status').innerText = "Usuário Online";
+            document.getElementById('precisao').innerText = acc.toFixed(1) + "m";
+
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 16); // Dá zoom no usuário na primeira vez
+            }
+        }
+
+        // 4. ESCUTAR EM TEMPO REAL (O SEGREDO)
+        supabase
+            .channel('rastreio-realtime')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'rastreio' }, payload => {
+                const { latitude, longitude, precisao } = payload.new;
+                atualizarMapa(latitude, longitude, precisao);
+            })
+            .subscribe();
+    </script>
+</body>
+</html>

